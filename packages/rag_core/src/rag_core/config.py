@@ -11,7 +11,10 @@ class Settings(BaseSettings):
     
     llm_model_base_url: str
     llm_model_name: str
-    llm_model_api_key: str    
+    llm_model_api_key: str
+
+    mongo_uri: str = "mongodb://localhost:27017"
+    mongo_db: str = "rag"
 
     class Config:
         env_file = ".env"
