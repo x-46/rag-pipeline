@@ -2,7 +2,6 @@ from langchain_community.document_loaders import DirectoryLoader, UnstructuredMa
 from langchain_core.documents import Document
 from transformers import AutoTokenizer
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from rag_core.loader import get_parent_text_from_elements
 import hashlib
 
 def build_parent_child_chunks(docs: list[Document]) -> tuple[list[Document], list[dict]]:

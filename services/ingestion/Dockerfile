@@ -7,6 +7,18 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
+# Runtime libs required by OpenCV/unstructured PDF processing.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+	libglib2.0-0 \
+	libgl1 \
+	libsm6 \
+	libxext6 \
+	libxrender1 \
+	libxcb1 \
+	tesseract-ocr \
+	poppler-utils \
+	&& rm -rf /var/lib/apt/lists/*
+
 # Copy lockfile and dependency metadata first for better layer caching.
 COPY pyproject.toml uv.lock ./
 COPY packages/rag_core/README.md packages/rag_core/README.md

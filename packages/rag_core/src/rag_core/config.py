@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    qdrant_url: str = "http://localhost:6334"
+    qdrant_url: str = "http://localhost:6333"
     collection_name: str = "rag_collection"
     
     embedding_model_base_url: str
