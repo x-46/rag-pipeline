@@ -1,8 +1,12 @@
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    qdrant_url: str = "http://localhost:6333"
+    qdrant_url: str = Field(
+        default="http://localhost:6333",
+        validation_alias=AliasChoices("QDRANT_URL", "QDRANT_HOST"),
+    )
     collection_name: str = "rag_collection"
     
     embedding_model_base_url: str

@@ -1,6 +1,8 @@
 services:
   qdrant:
     image: qdrant/qdrant:latest
+    networks:
+      - rag_net
     ports:
       - "6333:6333"   # REST API
       - "6334:6334"   # gRPC
@@ -8,6 +10,8 @@ services:
       - qdrant_data:/qdrant/storage
   mongodb:
     image: mongo:latest
+    networks:
+      - rag_net
     ports:
       - "27017:27017" # MongoDB Port
     volumes:
@@ -16,3 +20,8 @@ services:
 volumes:
   qdrant_data:
   mongodb_data:
+
+networks:
+  rag_net:
+    name: rag-pipeline-net
+    driver: bridge

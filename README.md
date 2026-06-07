@@ -59,6 +59,9 @@ Beispiel (API):
 
 ```bash
 docker run --rm \
+	--network rag-pipeline-net \
+	-e MONGO_URI=mongodb://mongodb:27017 \
+	-e QDRANT_URL=http://qdrant:6333 \
 	-e EMBEDDING_MODEL_BASE_URL=http://example.com \
 	-e EMBEDDING_MODEL_NAME=test-embed \
 	-e EMBEDDING_MODEL_API_KEY=dummy \

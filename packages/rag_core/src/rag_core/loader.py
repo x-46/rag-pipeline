@@ -45,20 +45,23 @@ def load_files(pdf_base_path: str, markdown_base_path: str, code_base_path: str,
     code_docs = []
 
     if pdf_base_path:
-        pdf_docs = laod_pdfs(pdf_base_path)
+        print(f"Loading PDF documents from {pdf_base_path}...")
+        pdf_docs = _laod_pdfs(pdf_base_path)
 
     if markdown_base_path:
-        markdown_docs = load_markdown(markdown_base_path)
+        print(f"Loading Markdown documents from {markdown_base_path}...")
+        markdown_docs = _load_markdown(markdown_base_path)
 
     if code_base_path and code_extensions:
+        print(f"Loading code documents from {code_base_path} with extensions {code_extensions}...")
         for ext in code_extensions:
-            code_docs.extend(load_text(code_base_path, ext))
+            code_docs.extend(_load_text(code_base_path, ext))
     
     all_docs = pdf_docs + markdown_docs + code_docs
 
     return all_docs
 
-def laod_pdfs(base_path: str) -> list[Document]: 
+def _laod_pdfs(base_path: str) -> list[Document]: 
     pdf_loader = DirectoryLoader(
         base_path,
         glob="**/*.pdf",
@@ -78,7 +81,7 @@ def laod_pdfs(base_path: str) -> list[Document]:
     return pdf_docs
 
 
-def load_markdown(base_path: str) -> list[Document]:
+def _load_markdown(base_path: str) -> list[Document]:
     loader = DirectoryLoader(
         base_path, 
         glob="**/*.md", 
@@ -90,7 +93,7 @@ def load_markdown(base_path: str) -> list[Document]:
     return docs
 
 
-def load_text(base_path: str, file_extensions: str) -> list[Document]:
+def _load_text(base_path: str, file_extensions: str) -> list[Document]:
     code_loader = DirectoryLoader(
         base_path,
         glob=f"**/*.{file_extensions}",
@@ -112,7 +115,7 @@ def load_text(base_path: str, file_extensions: str) -> list[Document]:
 
 
 
-def split_documents_by_title(docs):
+def _split_documents_by_title(docs):
     sections = []
     current_section = None
 
@@ -185,7 +188,7 @@ def get_parent_text_from_elements(elements):
         source_docs[source].append(element)
     
     for source, elems in source_docs.items():
-        split = split_documents_by_title(elems)
+        split = _split_documents_by_title(elems)
         for section in split:
             res.append(
                   {
@@ -195,5 +198,4 @@ def get_parent_text_from_elements(elements):
                     "child_element_ids": [e.metadata.get("element_id") for e in section["documents"]],
                   }
             )
-        print(f"Processed {len(elems)} elements from source {source} into {len(split)} sections.")
     return res
