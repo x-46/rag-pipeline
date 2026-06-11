@@ -1,11 +1,21 @@
+from __future__ import annotations
+
+from datetime import datetime, timezone
+from typing import TYPE_CHECKING
+
 from pymongo import MongoClient, UpdateOne
 from pymongo.collection import Collection
 
 from rag_core.config import settings
 
+if TYPE_CHECKING:
+    from rag_core.metrics import RequestMetrics
+
+_METRICS_COLLECTION = "request_metrics"
+
 
 def _get_client() -> MongoClient:
-	return MongoClient(settings.mongo_uri)
+    return MongoClient(settings.mongo_uri)
 
 
 
@@ -54,3 +64,34 @@ def recreate_mongo_collection_with_parent_elements(parent_elements: list[dict]) 
 	return mongo_collection
 
 
+def save_request_metrics(metrics: RequestMetrics, question: str) -> None:
+    """Persist a RequestMetrics snapshot for one request to the request_metrics collection."""
+    def _phase(p) -> dict:
+        return {
+            "llm_input_tokens": p.llm_input_tokens,
+            "llm_output_tokens": p.llm_output_tokens,
+            "llm_ms": round(p.llm_ms, 2),
+            "db_ms": round(p.db_ms, 2),
+            "local_ms": round(p.local_ms, 2),
+        }
+
+    total = metrics._total()
+
+    doc = {
+        "timestamp": datetime.now(timezone.utc),
+        "question": question,
+        "phases": {
+            "query_rewrite": _phase(metrics.query_rewrite),
+            "retrieval":     _phase(metrics.retrieval),
+            "parent_fetch":  _phase(metrics.parent_fetch),
+            "answer":        _phase(metrics.answer),
+        },
+        "totals": {
+            **_phase(total),
+            "wall_ms": round(metrics.wall_ms, 2),
+        },
+    }
+
+    client = _get_client()
+    db = client[settings.mongo_db]
+    db[_METRICS_COLLECTION].insert_one(doc)
