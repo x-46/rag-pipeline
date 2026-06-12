@@ -23,6 +23,7 @@ class RequestMetrics:
     wall_ms: float = 0.0
 
     def _total(self) -> PhaseMetrics:
+        """Sum token counts and timings across all phases."""
         return PhaseMetrics(
             llm_input_tokens=self.query_rewrite.llm_input_tokens + self.answer.llm_input_tokens,
             llm_output_tokens=self.query_rewrite.llm_output_tokens + self.answer.llm_output_tokens,
@@ -32,6 +33,7 @@ class RequestMetrics:
         )
 
     def report(self) -> str:
+        """Render a formatted per-phase metrics table as a string."""
         def fmt_i(v: int)   -> str: return f"{v:>9,}"    if v else f"{'–':>9}"
         def fmt_f(v: float) -> str: return f"{v:>9,.0f}" if v else f"{'–':>9}"
 

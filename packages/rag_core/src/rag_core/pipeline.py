@@ -1,15 +1,18 @@
 import time
-from typing import List
+from typing import Any
 
+from langchain_classic.retrievers.document_compressors import CrossEncoderReranker
 from langchain_core.documents import Document
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.vectorstores import VectorStoreRetriever
+from langchain_openai import ChatOpenAI
 
 from rag_core.llm import get_llm
 from rag_core.metrics import MetricsCallbackHandler, RequestMetrics
 from rag_core.mongodb import get_mongo_collection
 from rag_core.qdrant import get_vectorstore_retriever
-from rag_core.queryRewrite import query_rewriting
+from rag_core.query_rewrite import query_rewriting
 from rag_core.reranker import get_reranker, reciprocal_rank_fusion
 
 
@@ -34,11 +37,11 @@ class RagPipeline:
     """
 
     def __init__(self) -> None:
-        self._llm = get_llm()
-        self._retriever = get_vectorstore_retriever()
-        self._reranker = get_reranker(top_n=10)
+        self._llm: ChatOpenAI = get_llm()
+        self._retriever: VectorStoreRetriever = get_vectorstore_retriever()
+        self._reranker: CrossEncoderReranker = get_reranker(top_n=10)
 
-    def invoke(self, question: str) -> dict:
+    def invoke(self, question: str) -> dict[str, Any]:
         metrics = RequestMetrics()
         query_rewrite_handler = MetricsCallbackHandler(metrics.query_rewrite)
         answer_handler = MetricsCallbackHandler(metrics.answer)
@@ -57,7 +60,7 @@ class RagPipeline:
         question: str,
         metrics: RequestMetrics,
         handler: MetricsCallbackHandler,
-    ) -> List[Document]:
+    ) -> list[Document]:
         queries = query_rewriting(
             question,
             llm=self._llm,
@@ -72,10 +75,10 @@ class RagPipeline:
 
     def _multi_query_retrieve(
         self,
-        queries: List[str],
+        queries: list[str],
         metrics: RequestMetrics,
-    ) -> List[tuple[Document, float]]:
-        all_doc_lists: list[list] = []
+    ) -> list[tuple[Document, float]]:
+        all_doc_lists: list[list[Document]] = []
 
         for q in queries:
             t0 = time.time()
@@ -96,9 +99,9 @@ class RagPipeline:
 
     def _fetch_parents(
         self,
-        scored_docs: List[tuple[Document, float]],
+        scored_docs: list[tuple[Document, float]],
         metrics: RequestMetrics,
-    ) -> List[Document]:
+    ) -> list[Document]:
         parent_id_scores: dict[str, float] = {}
         for doc, rrf_score in scored_docs:
             parent_id = doc.metadata.get("parent_id")
@@ -109,7 +112,7 @@ class RagPipeline:
         print(f"Top parent IDs: {top_parent_ids}")
 
         mongo_collection = get_mongo_collection()
-        parent_docs: List[Document] = []
+        parent_docs: list[Document] = []
 
         for pid in top_parent_ids:
             t0 = time.time()
@@ -138,7 +141,7 @@ class RagPipeline:
     def _answer(
         self,
         question: str,
-        context: List[Document],
+        context: list[Document],
         handler: MetricsCallbackHandler,
     ) -> str:
         return (_ANSWER_PROMPT | self._llm | StrOutputParser()).invoke(

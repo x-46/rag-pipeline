@@ -2,7 +2,8 @@ from langchain_community.cross_encoders import HuggingFaceCrossEncoder
 from langchain_classic.retrievers.document_compressors import CrossEncoderReranker
 from langchain_core.documents import Document
 
-def get_reranker(top_n=10):
+def get_reranker(top_n: int = 10) -> CrossEncoderReranker:
+    """Return a cross-encoder reranker that keeps the top-n most relevant documents."""
     cross_encoder = HuggingFaceCrossEncoder(model_name="cross-encoder/ms-marco-MiniLM-L-6-v2")
     compressor = CrossEncoderReranker(model=cross_encoder, top_n=top_n)
     return compressor

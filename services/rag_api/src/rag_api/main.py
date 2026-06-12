@@ -33,8 +33,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="RAG API", version="1.0.0", lifespan=lifespan)
 
 
-# ── Routes ────────────────────────────────────────────────────────────────────
-
+# Routes
 @app.get("/v1/models", response_model=ModelList)
 async def list_models():
     return ModelList(data=[ModelCard(id="rag-model", created=int(time.time()))])
@@ -45,11 +44,11 @@ async def chat_completions(request: ChatCompletionRequest):
     if _pipeline is None:
         raise HTTPException(status_code=503, detail="Pipeline not ready")
 
-    question = _last_user_message(request)
+    question = _get_user_message(request)
     if not question:
         raise HTTPException(status_code=400, detail="No user message found")
 
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()
     result = await loop.run_in_executor(None, _pipeline.invoke, question)
 
     loop.run_in_executor(None, save_request_metrics, result["metrics"], question)
@@ -67,20 +66,21 @@ async def chat_completions(request: ChatCompletionRequest):
                 finish_reason="stop",
             )
         ],
-        sources=_extract_sources(result["context"]),
+        sources=_build_sources(result["context"]),
     )
 
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
-
-def _last_user_message(request: ChatCompletionRequest) -> str:
+# Helpers
+def _get_user_message(request: ChatCompletionRequest) -> str:
+    """Return the content of the last user message in the request."""
     for msg in reversed(request.messages):
         if msg.role == "user":
             return msg.content
     return ""
 
 
-def _extract_sources(context_docs) -> list[Source]:
+def _build_sources(context_docs: list) -> list[Source]:
+    """Deduplicate and extract source metadata from retrieved context documents."""
     seen: set[str] = set()
     sources: list[Source] = []
     for doc in context_docs:
@@ -91,7 +91,7 @@ def _extract_sources(context_docs) -> list[Source]:
     return sources
 
 
-# ── Dev entrypoint ────────────────────────────────────────────────────────────
+# Dev entrypoint 
 
 def main():
     import uvicorn

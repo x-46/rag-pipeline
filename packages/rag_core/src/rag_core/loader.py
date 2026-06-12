@@ -5,6 +5,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 import hashlib
 
 def build_parent_child_chunks(docs: list[Document]) -> tuple[list[Document], list[dict]]:
+    """Split documents into token-sized child chunks and derive parent sections for retrieval."""
     hf_tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen3-Embedding-8B")
 
     splitter = RecursiveCharacterTextSplitter.from_huggingface_tokenizer(
@@ -39,7 +40,8 @@ def build_parent_child_chunks(docs: list[Document]) -> tuple[list[Document], lis
 
     return chunks, parent_elements
 
-def load_files(pdf_base_path: str, markdown_base_path: str, code_base_path: str, code_extensions: list[str] = []):
+def load_files(pdf_base_path: str, markdown_base_path: str, code_base_path: str, code_extensions: list[str] = []) -> list[Document]:
+    """Load PDF, Markdown, and code documents from the given base paths."""
     pdf_docs = []
     markdown_docs = []
     code_docs = []
@@ -61,7 +63,8 @@ def load_files(pdf_base_path: str, markdown_base_path: str, code_base_path: str,
 
     return all_docs
 
-def _laod_pdfs(base_path: str) -> list[Document]: 
+def _laod_pdfs(base_path: str) -> list[Document]:
+    """Load all PDFs from base_path using Unstructured in elements mode."""
     pdf_loader = DirectoryLoader(
         base_path,
         glob="**/*.pdf",
@@ -82,6 +85,7 @@ def _laod_pdfs(base_path: str) -> list[Document]:
 
 
 def _load_markdown(base_path: str) -> list[Document]:
+    """Load all Markdown files from base_path using Unstructured in elements mode."""
     loader = DirectoryLoader(
         base_path, 
         glob="**/*.md", 
@@ -94,6 +98,7 @@ def _load_markdown(base_path: str) -> list[Document]:
 
 
 def _load_text(base_path: str, file_extensions: str) -> list[Document]:
+    """Load all text/code files with the given extension from base_path."""
     code_loader = DirectoryLoader(
         base_path,
         glob=f"**/*.{file_extensions}",
@@ -115,7 +120,8 @@ def _load_text(base_path: str, file_extensions: str) -> list[Document]:
 
 
 
-def _split_documents_by_title(docs):
+def _split_documents_by_title(docs: list[Document]) -> list[dict]:
+    """Group elements into sections, each starting at a Title element."""
     sections = []
     current_section = None
 
@@ -159,7 +165,8 @@ def _split_documents_by_title(docs):
     return sections
 
 
-def get_parent_text_from_elements(elements):
+def get_parent_text_from_elements(elements: list[Document]) -> list[dict]:
+    """Build parent section dicts from raw elements, handling code and structured doc types separately."""
     # Python-Code-Dateien separat behandeln: kein category/element_id von Unstructured
     code_elements = [e for e in elements if e.metadata.get("doc_type") == "code"]
     structured_elements = [e for e in elements if e.metadata.get("doc_type") != "code"]

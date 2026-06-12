@@ -1,6 +1,5 @@
 import json
 import time
-from typing import List
 
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
@@ -77,7 +76,8 @@ def query_rewriting(
     retriever,
     reranker,
     max_queries: int = 5,
-) -> List[str]:
+) -> list[str]:
+    """Generate diverse search queries from the original question using the LLM and initial retrieval context."""
     invoke_config = {"callbacks": [handler]}
 
     t0 = time.time()
@@ -97,6 +97,7 @@ def query_rewriting(
 
 
 def parse_queries(raw: str, original_question: str, max_queries: int) -> list[str]:
+    """Parse the raw JSON query list, prepend the original question, deduplicate, and cap at max_queries."""
     try:
         queries = json.loads(raw)
         if not isinstance(queries, list):
