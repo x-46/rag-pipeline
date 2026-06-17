@@ -10,6 +10,7 @@ dependencies = [
 
 [project.scripts]
 ingestion = "ingestion.main:main"
+ingestion-test = "ingestion.test_ingestion:main"
 
 [tool.uv.sources]
 rag-core = { workspace = true }

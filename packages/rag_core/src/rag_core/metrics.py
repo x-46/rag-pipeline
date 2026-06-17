@@ -35,8 +35,8 @@ class RequestMetrics:
 
     def report(self) -> str:
         """Render a formatted per-phase metrics table as a string."""
-        def fmt_i(v: int)   -> str: return f"{v:>9,}"    if v else f"{'–':>9}"
-        def fmt_f(v: float) -> str: return f"{v:>9,.0f}" if v else f"{'–':>9}"
+        def fmt_i(v: int)   -> str: return f"{v:>9,}"    if v else f"{'-':>9}"
+        def fmt_f(v: float) -> str: return f"{v:>9,.0f}" if v else f"{'-':>9}"
 
         def row(label: str, p: PhaseMetrics) -> str:
             return (

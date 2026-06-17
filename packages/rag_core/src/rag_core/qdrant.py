@@ -23,6 +23,28 @@ def _create_sparse_embeddings() -> FastEmbedSparse:
     return FastEmbedSparse(model_name="Qdrant/bm25")
 
 
+def recreate_collection_with_rag_chunks(chunks: list) -> QdrantVectorStore:
+    """Delete an existing collection and index ``RagDocument`` chunks in hybrid mode.
+
+    Converts each ``RagDocument`` to a LangChain ``Document`` at the storage
+    boundary, preserving ``source``, ``doc_type``, ``parent_id``, and any extra
+    metadata so the retrieval pipeline can look up parent sections by ``parent_id``.
+    """
+    lc_docs = [
+        Document(
+            page_content=chunk.text,
+            metadata={
+                "source": chunk.source,
+                "doc_type": chunk.doc_type,
+                "parent_id": chunk.parent_id,
+                **chunk.metadata,
+            },
+        )
+        for chunk in chunks
+    ]
+    return recreate_collection_with_documents(lc_docs)
+
+
 def recreate_collection_with_documents(chunks: list[Document]) -> QdrantVectorStore:
     """Delete an existing collection (if present) and index documents in hybrid mode."""
     client = QdrantClient(url=settings.qdrant_url)

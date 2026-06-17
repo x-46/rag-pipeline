@@ -6,7 +6,11 @@ RAG_API_URL = os.getenv("RAG_API_URL", "http://localhost:8000/v1")
 RAG_API_KEY = os.getenv("RAG_API_KEY", "none")
 
 QUESTIONS = [
-    "Which bidding strategies does ASSUME support?",
+    #"Which bidding strategies does ASSUME support?",
+    #"What are the key features of ASSUME?",
+    #"How do I get started with ASSUME?",
+    "How does the InfrastructureInterface work and how to use it?",
+    #"How does the scenario loader work in ASSUME?"
 ]
 
 

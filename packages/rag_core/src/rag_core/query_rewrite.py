@@ -22,8 +22,8 @@ Additional context:
 --- STEP 1: Detect query type ---
 First decide: is this question about CODE (e.g. functions, classes, algorithms, libraries, APIs, implementations, configurations, error messages, syntax, data structures, pipelines, scripts)?
 
-If YES → apply the CODE retrieval strategies below (sections A–H).
-If NO  → apply the DOCUMENT retrieval strategies (sections 1–8).
+If YES -> apply the CODE retrieval strategies below (sections A-H).
+If NO  -> apply the DOCUMENT retrieval strategies (sections 1-8).
 
 --- CODE retrieval strategies (use only when query is code-related) ---
 
