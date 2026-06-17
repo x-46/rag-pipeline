@@ -1,0 +1,33 @@
+@startuml
+title RAG-Flow
+
+start
+:Receive input query;
+
+group Initial Retrieval (Pre-Context for Query Rewriting)
+  :Qdrant Hybrid Retrieval\n(Dense + Sparse -> internal RRF, k=25);
+  :Cross-Encoder Re-Ranking\n(top_n=10);
+end group
+
+:LLM Query Rewriting\n(original question + pre-context -> up to max_queries variants);
+:Prepend original question\n+ remove duplicates;
+
+group Multi-Query Retrieval (per query variant)
+  :Qdrant Hybrid Retrieval\n(Dense + Sparse -> internal RRF, k=25 (documents per query variant));
+  :Cross-Encoder Re-Ranking\n(top_n=10);
+end group
+
+:Reciprocal Rank Fusion (RRF)\nover all query variants\n-> (Document, rrf_score) list;
+
+group Parent Document Lookup (MongoDB)
+  :Aggregate RRF scores per parent_id;
+  :Select top-10 parent_ids by cumulative score;
+  :Load full parent documents from MongoDB;
+end group
+
+:Build prompt from {original question + parent context};
+:Call LLM;
+:Return answer + source documents;
+stop
+
+@enduml
