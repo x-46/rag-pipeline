@@ -5,7 +5,7 @@ description = "Ingestion service for RAG pipeline"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "rag-core",
+    "rag-core[ingestion]",
 ]
 
 [project.scripts]

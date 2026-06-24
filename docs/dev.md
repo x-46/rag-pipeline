@@ -26,8 +26,18 @@ uv run ingestion-test --code /path/to/src --ext py,ts
 
 Prints a preview of each section and chunk.
 
-## Install a package
+## Add a package
 
 ```bash
-uv pip install <package-name> --package rag_core  # or --package rag-api, etc.
+uv add <package> --package rag-core       # shared core
+uv add <package> --package rag-api        # API only
+uv add <package> --package ingestion      # ingestion service only
 ```
+
+After any `pyproject.toml` change run `uv lock` to update the lockfile before building Docker images.
+
+## rag-core dependency layout
+
+`rag-core` dependencies are split into a base layer and an optional `ingestion` extra to keep the API image lean. The base layer contains everything the API needs: LLM, retrieval, reranker, Qdrant, MongoDB. The `ingestion` extra adds the document-loading stack: docling, unstructured, tokenizer, text splitters.
+
+The ingestion service declares `rag-core[ingestion]` as its dependency and gets both layers. The API declares `rag-core` and only gets the base. The document-loading packages are never installed in the API image.

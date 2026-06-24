@@ -21,7 +21,7 @@ RUN uv sync --frozen --no-dev --package rag-api --no-install-workspace
 COPY packages/rag_core/src packages/rag_core/src
 COPY services/rag_api/src services/rag_api/src
 
-# Re-sync to install local workspace packages from copied sources.
-RUN uv sync --frozen --no-dev --package rag-api
+# Re-sync to install local workspace packages from copied sources, then clean cache.
+RUN uv sync --frozen --no-dev --package rag-api && uv cache clean
 
 CMD ["uv", "run", "--frozen", "uvicorn", "rag_api.main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -33,7 +33,7 @@ RUN uv sync --frozen --no-dev --package ingestion --no-install-workspace
 COPY packages/rag_core/src packages/rag_core/src
 COPY services/ingestion/src services/ingestion/src
 
-# Re-sync to install local workspace packages from copied sources.
-RUN uv sync --frozen --no-dev --package ingestion
+# Re-sync to install local workspace packages from copied sources, then clean cache.
+RUN uv sync --frozen --no-dev --package ingestion && uv cache clean
 
 CMD ["uv", "run", "--frozen", "ingestion"]
