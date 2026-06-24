@@ -11,3 +11,4 @@ Built with Qdrant, MongoDB, LangChain, Unstructured / Docling, FastEmbed BM25, a
 - [Ingestion](docs/ingestion.md) - how ingestion works, how to extend it
 - [RAG pipeline](docs/rag.md) - the retrieval algorithm and design decisions
 - [Dev reference](docs/dev.md) - day-to-day development commands
+- [Development Notebook](rag.ipynb) - the notebook used to develop and test the pipeline
